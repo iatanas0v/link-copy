@@ -1,4 +1,5 @@
 const button = document.querySelector("#copy-btn");
+const buttonShort = document.querySelector("#copy-btn-short");
 
 async function getCurrentTab() {
   let queryOptions = { active: true, lastFocusedWindow: true };
@@ -20,18 +21,26 @@ async function setLinkInClipboard(title, url) {
   document.removeEventListener("copy", listener);
 }
 
-button.addEventListener("click", async () => {
+async function executeCopy(button, formatTitle = (title) => title) {
   const tab = await getCurrentTab();
 
   if (!tab) {
     return;
   }
 
-  await setLinkInClipboard(tab.title, tab.url);
+  await setLinkInClipboard(formatTitle(tab.title), tab.url);
 
   button.textContent = "✅ Copied!";
 
   setTimeout(() => {
     button.textContent = "Copy Link";
   }, 2000);
+}
+
+button.addEventListener("click", async () => {
+  await executeCopy(button);
+});
+
+buttonShort.addEventListener("click", async () => {
+  await executeCopy(buttonShort, (title) => title.match(/\[([^\]]+)\]/)?.[0] || title);
 });
